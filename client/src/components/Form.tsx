@@ -6,9 +6,11 @@ import SendIcon from '@mui/icons-material/Send';
 import Alert from 'react-s-alert';
 import { FormValues } from '../types';
 import { generateCodes } from '../api/codes';
+import { useAppContext } from '../context/App.context';
 
 export default function CodesForm() {
     const [formDisabled, setFormDisabled] = useState<boolean>(false);
+    const { getAllCodes } = useAppContext();
 
     const validationSchema = yup.object({
         amount: yup
@@ -25,16 +27,20 @@ export default function CodesForm() {
             amount: 0
         },
         validationSchema,
-        onSubmit: (values: FormValues) => {
-            handleGenerateCodes(values)
+        onSubmit: (values: FormValues, { resetForm }) => {
+            handleGenerateCodes(values);
+            resetForm();
         },
     });
 
     const handleGenerateCodes = async (values: FormValues) => {
         try {
             setFormDisabled(true);
+            const handler = setInterval(getAllCodes, 10000);
             await generateCodes(values);
+            getAllCodes(); //fetch codes in case query finished in less than 10 seconds (because interval will be cleared before its time passes
             setFormDisabled(false);
+            clearTimeout(handler);
         } catch (e) {
             setFormDisabled(false);
             Alert.error('An Error occured while inserting Codes.', {

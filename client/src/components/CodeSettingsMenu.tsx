@@ -2,12 +2,12 @@ import { useFormik } from 'formik';
 import { Box, InputLabel, MenuItem, FormControl, Select, TextField, Grid, Typography, Button } from '@mui/material';
 import FileInput from './FileInput';
 import ColorPicker from './ColorPicker';
-import { useSettings } from '../context/Settings.context';
+import { useAppContext } from '../context/App.context';
 import { settings } from '../context/types'
 import { CodeSettingsMenuProps } from '../types';
 
 export default function CodeSettingsMenu({ handleClose }: CodeSettingsMenuProps) {
-    const { settings, updateSettings } = useSettings();
+    const { settings, updateSettings } = useAppContext();
 
     const formik = useFormik({
         initialValues: {

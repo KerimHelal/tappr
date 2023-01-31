@@ -1,14 +1,14 @@
 
 import { Grid, Paper, Typography } from '@mui/material';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useSettings } from '../context/Settings.context';
+import { useAppContext } from '../context/App.context';
 
 interface Props {
     code: string
 }
 
 export default function CodeCard({ code }: Props) {
-    const { settings } = useSettings();
+    const { settings } = useAppContext();
     const codeSettings = {
         fgColor: settings.foregroundColor,
         level: settings.correctionLevel,

@@ -1,6 +1,5 @@
 const Codes = require("../models/codes");
 const { generateRandomCodes } = require("../utils/generateRandomCodes");
-const { monitorListingsUsingEventEmitter, closeChangeStream } = require('../utils/changeStream')
 
 exports.read = async (req, res) => {
     const page = req.query.page || 1;
@@ -31,7 +30,6 @@ exports.create = async (req, res) => {
         let documents = codesList.map(code => ({
             code
         }));
-        monitorListingsUsingEventEmitter(Codes);
         await Codes.insertMany(documents);
         res.status(200).send('Codes inserted successfuly!');
     } catch (error) {

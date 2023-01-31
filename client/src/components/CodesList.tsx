@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { downloadZip } from 'client-zip';
 import { Container, Divider, Grid, Typography, Pagination } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -6,52 +6,17 @@ import DownloadIcon from '@mui/icons-material/Download';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from 'react-s-alert';
-import useWebSocket from 'react-use-websocket';
 import CodeCard from './CodeCard';
-import { fetchCodes, deleteCodes } from '../api/codes';
+import { deleteCodes } from '../api/codes';
 import dataURLtoBlob from '../utils/dataURLtoBlob'
 import downloadFile from '../utils/downloadFile'
 import { Code } from '../types';
+import { useAppContext } from '../context/App.context';
 
 export default function CodesList() {
-    const [codes, setCodes] = useState<Code[]>([]);
-    const [page, setPage] = useState<number>(1);
-    const [count, setCount] = useState<number>(0);
+    const { codes, codesCount, getAllCodes, page, setPage } = useAppContext();
     const [downloadingCodes, setDownloadingCodes] = useState<boolean>(false);
     const [deletingCodes, setDeletingCodes] = useState<boolean>(false);
-
-    useWebSocket('ws://localhost:8080', {
-        onMessage: () => {
-            getCodes();
-        }
-    });
-
-
-    const getCodes = async () => {
-        try {
-            const { codes, count, error } = await fetchCodes(page);
-            if (error) {
-                Alert.error('An Error occured while fetching Codes.', {
-                    position: 'top-right',
-                    effect: 'slide',
-                    timeout: 'none'
-                });
-                return;
-            }
-            setCodes(codes);
-            setCount(Math.ceil(count / 12));
-        } catch (e) {
-            Alert.error('An Error occured while fetching Codes.', {
-                position: 'top-right',
-                effect: 'slide',
-                timeout: 'none'
-            });
-        }
-    }
-
-    useEffect(() => {
-        getCodes();
-    }, [page]);
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
@@ -76,7 +41,7 @@ export default function CodesList() {
             setDeletingCodes(true);
             await deleteCodes();
             setDeletingCodes(false);
-            getCodes()
+            getAllCodes();
         } catch (e) {
             setDeletingCodes(false);
             Alert.error('An Error occured while deleting Codes.', {
@@ -127,7 +92,7 @@ export default function CodesList() {
                     </Grid>
                 }
             </Grid>
-            {count > 1 && <Pagination count={count} page={page} sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }} onChange={handleChangePage} />}
+            {codesCount > 1 && <Pagination count={codesCount} page={page} sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }} onChange={handleChangePage} />}
         </Container>
     )
 }
